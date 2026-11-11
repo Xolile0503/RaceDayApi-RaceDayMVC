@@ -1,0 +1,32 @@
+﻿@model List<RaceDayMVC.Models.RegistrationVm>
+@{
+    ViewData["Title"] = "My Results";
+}
+
+<h2>My Race Results</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info mt-3">You don't have any recorded results yet.</div>
+}
+else
+{
+    <div class="row mt-4">
+        @foreach (var r in Model)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">@r.EventName</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-3 text-muted">@r.EventDate?.ToString("dd MMM yyyy")</h6>
+                        <p class="mb-1"><strong>Category:</strong> @(r.CategoryName ?? "None")</p>
+                        <p class="mb-1"><strong>Finish Time:</strong> @r.FinishTime</p>
+                        <h4 class="mt-3 text-success">Position: @r.FinishingPosition</h4>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

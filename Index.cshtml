@@ -1,0 +1,39 @@
+﻿@model List<RaceDayMVC.Models.EventListVm>
+@{
+    ViewData["Title"] = "Upcoming Events";
+}
+<h2>Upcoming Events</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="row mt-4">
+    @foreach (var e in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                @if (!string.IsNullOrEmpty(e.BannerUrl))
+                {
+                    <img src="https://localhost:7278@e.BannerUrl" class="card-img-top" style="height:150px; object-fit:cover;" />
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@e.Name</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">@e.Location · @e.EventDate.ToString("dd MMM yyyy")</h6>
+                    <p class="card-text">@e.Description</p>
+                    <span class="badge bg-info text-dark mb-3">@e.RegistrationCount enrolled</span>
+
+                    <form method="post" asp-action="Enrol">
+                        <input type="hidden" name="eventId" value="@e.RaceEventId" />
+                        <button type="submit" class="btn btn-primary w-100">Enrol Now</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

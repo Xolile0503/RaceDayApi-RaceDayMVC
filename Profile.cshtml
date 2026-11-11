@@ -1,0 +1,47 @@
+﻿@model RaceDayMVC.Models.ParticipantProfileVm
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<h2>My Profile</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<div class="row mt-4">
+    <div class="col-md-4 text-center">
+        @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+        {
+            <img src="https://localhost:7278@Model.ProfilePictureUrl" class="img-fluid rounded-circle mb-3" style="max-width: 200px; height: 200px; object-fit: cover;" />
+        }
+        else
+        {
+            <div class="bg-secondary rounded-circle mb-3 d-flex align-items-center justify-content-center mx-auto" style="width: 200px; height: 200px;">
+                <span class="text-white fs-1">@Model.FirstName[0]@Model.LastName[0]</span>
+            </div>
+        }
+        <h4>@Model.FirstName @Model.LastName</h4>
+        <p class="text-muted">@Model.Email</p>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="ParticipantId" />
+                    <div class="mb-3">
+                        <label>Emergency Contact</label>
+                        <input asp-for="EmergencyContact" class="form-control" placeholder="Name and Phone Number" />
+                    </div>
+                    <div class="mb-3">
+                        <label>Update Profile Picture</label>
+                        <input asp-for="PictureFile" type="file" class="form-control" accept="image/*" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
