@@ -1,0 +1,31 @@
+﻿@model List<RaceDayMVC.Models.RegistrationVm>
+@{
+    ViewData["Title"] = "Event Enrolments";
+}
+<h2>Enrolments for Event</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info mt-3">No one has enrolled in this event yet.</div>
+}
+else
+{
+    <table class="table mt-4">
+        <thead>
+            <tr>
+                <th>Participant Name</th>
+                <th>Enrolment Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.ParticipantName</td>
+                    <td>@r.RegistrationDate.ToString("dd MMM yyyy HH:mm")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<a asp-action="Index" class="btn btn-secondary mt-3">Back to Dashboard</a>
