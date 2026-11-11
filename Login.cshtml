@@ -1,0 +1,17 @@
+﻿@model RaceDayMVC.Models.LoginVm
+@{
+    ViewData["Title"] = "Login";
+}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card p-4 shadow-sm">
+            <h3 class="text-center mb-3">Login</h3>
+            <form method="post">
+                <div class="mb-3"><label>Email</label><input asp-for="Email" class="form-control" /></div>
+                <div class="mb-3"><label>Password</label><input asp-for="Password" type="password" class="form-control" /></div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+            <div class="text-danger mt-2">@Html.ValidationSummary()</div>
+        </div>
+    </div>
+</div>
