@@ -1,0 +1,30 @@
+# 🏁 RaceDay Application (PROG6212 Part 3)
+
+A full-stack, role-based web application for managing and participating in athletic events. The solution is split into a RESTful API backend and an ASP.NET Core MVC frontend.
+
+## 📖 Project Overview
+The RaceDay system allows Organisers to create events, manage categories, and capture results. Participants can browse upcoming events, enrol with specific categories, view their race history, and manage their profiles with profile pictures.
+
+## 🏗️ Architecture
+The solution follows a decoupled architecture:
+- **RaceDayAPI (Backend):** ASP.NET Core Web API. Handles all database operations (Entity Framework Core + SQL Server), business logic, authentication, and integrations.
+- **RaceDayMVC (Frontend):** ASP.NET Core MVC. Strictly consumes the API. Contains no direct database access. Uses Session Management for state.
+
+### ☁️ Azure Blob Storage
+All image handling (Event Banners and Participant Profile Pictures) is routed through the API. The API integrates with **Azure Blob Storage** to securely store and serve these images. The MVC application communicates only with the API and never directly with Azure.
+
+---
+
+## 🚀 How to Run Locally (Visual Studio)
+
+### 1. Prerequisites
+- Visual Studio 2022 (.NET 8.0 SDK)
+- SQL Server (LocalDB or SQL Express)
+
+### 2. Database Setup
+1. Open the solution in Visual Studio.
+2. Open the **Package Manager Console** (Tools > NuGet Package Manager > Package Manager Console).
+3. Set the Default Project to `RaceDayApi`.
+4. Run the following command to apply migrations:
+   ```powershell
+   Update-Database
