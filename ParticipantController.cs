@@ -1,59 +1,54 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RaceDayAPI.Data;
-using RaceDayAPI.Services;
+using RaceDayMVC.Models;
+using RaceDayMVC.Services;
 
-namespace RaceDayAPI.Controllers
+namespace RaceDayMVC.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ParticipantsController : ControllerBase
+    public class ParticipantController : Controller
     {
-        private readonly RaceDayContext _context;
-        private readonly IBlobService _blob;
+        private readonly ApiClient _api;
+        public ParticipantController(ApiClient api) => _api = api;
 
-        public ParticipantsController(RaceDayContext context, IBlobService blob)
+        private bool IsParticipant => HttpContext.Session.GetString("Role") == "Participant";
+
+        public async Task<IActionResult> Index()
         {
-            _context = context;
-            _blob = blob;
+            if (!IsParticipant) return RedirectToAction("Login", "Account");
+            var events = await _api.GetEventsAsync();
+            return View(events);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetProfile(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var p = await _context.Participants
-                .Include(x => x.User)
-                .FirstOrDefaultAsync(x => x.ParticipantId == id);
-
-            if (p == null) return NotFound();
-
-            return Ok(new
-            {
-                p.ParticipantId,
-                p.UserId,
-                p.User!.FirstName,
-                p.User.LastName,
-                p.User.Email,
-                p.EmergencyContact,
-                p.ProfilePictureUrl
-            });
+            if (!IsParticipant) return RedirectToAction("Login", "Account");
+            var ev = await _api.GetEventAsync(id);
+            if (ev == null) return NotFound();
+            return View(ev);
         }
 
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateProfile(int id, [FromForm] string? emergencyContact, IFormFile? profilePicture)
+        [HttpPost]
+        public async Task<IActionResult> Enrol(int eventId)
         {
-            var p = await _context.Participants.FirstOrDefaultAsync(x => x.ParticipantId == id);
-            if (p == null) return NotFound();
+            if (!IsParticipant) return RedirectToAction("Login", "Account");
 
-            p.EmergencyContact = emergencyContact;
+            int participantId = HttpContext.Session.GetInt32("ProfileId") ?? 0;
+            var (ok, error) = await _api.EnrolAsync(eventId, participantId);
 
-            if (profilePicture != null && profilePicture.Length > 0)
-            {
-                p.ProfilePictureUrl = await _blob.UploadAsync(profilePicture);
-            }
+            if (ok)
+                TempData["Success"] = "Successfully enrolled!";
+            else
+                TempData["Error"] = error ?? "Failed to enrol.";
 
-            await _context.SaveChangesAsync();
-            return Ok(new { message = "Profile updated successfully!", p.ProfilePictureUrl });
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> MyEvents()
+        {
+            if (!IsParticipant) return RedirectToAction("Login", "Account");
+
+            int participantId = HttpContext.Session.GetInt32("ProfileId") ?? 0;
+            var regs = await _api.GetMyRegistrationsAsync(participantId);
+            return View(regs);
         }
     }
 }
