@@ -1,39 +1,45 @@
-using Microsoft.EntityFrameworkCore;
-using RaceDayAPI.Data;
-using RaceDayAPI.Services; 
+using RaceDayMVC.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddScoped<IBlobService, LocalBlobService>(); 
+builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<RaceDayContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("RaceDayConnection")));
-
-builder.Services.AddCors(options =>
+// Add Session for maintaining login state
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+    options.IdleTimeout = TimeSpan.FromHours(2);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Register the ApiClient (Make sure the port matches your API project!)
+// Check your API's launchSettings.json to confirm the port number.
+string apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7100/api/";
+builder.Services.AddHttpClient<ApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
-
 app.UseStaticFiles();
+app.UseRouting();
 
-app.UseCors("AllowFrontend");
-app.MapControllers();
+app.UseSession(); // MUST be before Authorization
+
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
